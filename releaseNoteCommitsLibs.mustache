@@ -1,0 +1,18 @@
+<section>
+	<h2>Git commit log for REMO XO react libs</h2>
+	<p><b>Git repo: </b><a href={{repoPathLibs}}>{{repoPathLibs}}</a></p>
+    <table border="1">
+	<tr>
+		<th>Commit</th>
+		<th>Author</th>
+		<th>Date</th>
+	</tr>
+		{{#commitsLibs}}
+			<tr>
+				<td>{{message}}</td>
+				<td>{{author}}</td>
+				<td>{{timestamp}}</td>
+			</tr>
+    	{{/commitsLibs}}
+	</table>
+</section>

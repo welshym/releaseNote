@@ -1,0 +1,17 @@
+{
+	"emailEnabled": false,
+	"SMTP_SERVER": "smtp.gmail.com",
+	"SMTP_PORT": 587,
+
+	"emailTo": "eepgmcw@yahoo.com, mark.c.welsh@gmail.com",
+	"emailFrom": "mark.c.welsh@gmail.com",
+
+	"defaultStartTag": "v[0-9]*",
+	"defaultEndTag": "HEAD",
+
+	"gitRepoPathApps": ".",
+	"gitRepoPathLibs": ".",
+
+	"contactPoint": "Bob, Stuart or Dave - definitely not Gru"
+	
+}
