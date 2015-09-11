@@ -7,7 +7,7 @@ import json
 import pystache
 import subprocess
 import traceback
-import sys, os
+import sys, os, re
 
 class ReleaseNoteError(Exception):
 	def __init__(self, msg):
@@ -19,10 +19,23 @@ execPath = ""
 
 #<a href="mailto:webmaster@example.com">Jon Doe</a>
 
-def loadConfiguration():
+def loadConfiguration(argsParsed):
 	with open(os.path.join(execPath, 'config.json')) as data_file:    
 		global config
 		config = json.load(data_file)
+
+	if (config['emailEnabled'] == True) & (argsParsed.emailPassword == None):
+		print "Configuration requires email address."
+		exit(-1)
+
+	config['emailPassword'] = argsParsed.emailPassword 
+	config['verbose'] = argsParsed.verbose 
+	if argsParsed.startTag != None:
+		config['startTag'] = argsParsed.startTag 
+	if argsParsed.endTag != None:
+		config['endTag'] = argsParsed.startTag 
+	config['buildNumber'] = argsParsed.buildNumber
+
 
 def releaseNoteArgs():
     parser = argparse.ArgumentParser(description='Python API release note script.')
@@ -38,7 +51,7 @@ def releaseNoteArgsParse(parser):
     return parser.parse_args()
 
 
-def releaseNoteEmail (emailPassword, fileAttachment=None, message=None):
+def releaseNoteEmail (fileAttachment=None, message=None):
 	msg = MIMEMultipart('alternative')
 	msg['Subject'] = 'Release Note'
 	msg['From'] = config['emailFrom']
@@ -59,7 +72,7 @@ def releaseNoteEmail (emailPassword, fileAttachment=None, message=None):
 	session.ehlo
 
 	try:
-		session.login(config['emailFrom'], emailPassword)
+		session.login(config['emailFrom'], config['emailPassword'])
 	except:
 		raise ReleaseNoteError("Cannot login into the SMTP server.")
 
@@ -67,6 +80,10 @@ def releaseNoteEmail (emailPassword, fileAttachment=None, message=None):
 	session.quit()
     
 def executeExternalCommand(cmd, path, shell=True):
+
+	if config['verbose']:
+		print "Executing: ", cmd
+
 	try:
 		p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, shell=shell, cwd=path)
 		commandOutput = p.communicate()
@@ -74,19 +91,35 @@ def executeExternalCommand(cmd, path, shell=True):
 		raise ReleaseNoteError("Failed git command: " + cmd)
 	return commandOutput
 
-def getCommitLog(startTag=None, endTag=None, path="."):
+def findMatchedTags(tagList, tagRegEx):
+	matchedTags = []
+	p = re.compile("(" + tagRegEx + ")")
+	for tag in tagList:
+		match = p.match(tag)
+		if match:
+			matchedTags.append(match.group())
 
-	if startTag == None:
-		startTag = str(config["defaultStartTag"])
+	return matchedTags
 
-	if endTag == None:
-		endTag = str(config["defaultEndTag"])
 
-	tagOut, tagErr = executeExternalCommand('git describe --tags --match ' + startTag + ' --abbrev=0', path=path)
-	if tagOut == "":
+def getCommitLog(path="."):
+
+#	tagOut, tagErr = executeExternalCommand('git describe --tags --match ' + config['startTag'] + ' --abbrev=0', path=path)
+
+	tagListOut, tagListErr = executeExternalCommand('git tag', path=path)
+	if tagListOut == "":
 		raise ReleaseNoteError("No tags matching criteria found, exiting.")
 
-	logCmd = ['git', 'log', tagOut.rstrip("\n") + '...' + endTag, '--pretty=format:{\"author\":\"%cn\",\"message\":\"%s\",\"timestamp\":\"%ci\",\"hash\":\"%H\"}']
+	tagsMatch = findMatchedTags(tagList=tagListOut.splitlines(), tagRegEx=config['tagRegEx'])
+
+	later = tagsMatch.pop()
+	try:
+		earlier = tagsMatch.pop() + "..."
+	except:
+		earlier = ""
+
+
+	logCmd = ['git', 'log', earlier + later, '--pretty=format:{\"author\":\"%cn\",\"message\":\"%s\",\"timestamp\":\"%ci\",\"hash\":\"%H\"}']
 	logOut, tagErr = executeExternalCommand(logCmd, path=path, shell=False)
 	if logOut == "":
 		raise ReleaseNoteError("No git log data available.")
@@ -105,7 +138,7 @@ def getCommitLog(startTag=None, endTag=None, path="."):
 
 	return commitLog
 
-def getGitPath(path):
+def getGitPath(path='.'):
 	pathOut, pathErr = executeExternalCommand('git config --get remote.origin.url', path=path)
 	return pathOut
 
@@ -131,23 +164,19 @@ def generateReleaseNoteHTML(commitLogApps, commitLogLibs, buildNo):
 
 def main(args):
 
-	commitLogApps = getCommitLog(startTag=argsParsed.startTag, endTag=argsParsed.endTag, path=config['gitRepoPathApps'])
-	commitLogLibs = getCommitLog(startTag=argsParsed.startTag, endTag=argsParsed.endTag, path=config['gitRepoPathLibs'])
+	commitLogApps = getCommitLog(path=config['gitRepoPathApps'])
+	commitLogLibs = getCommitLog(path=config['gitRepoPathLibs'])
 
-	generateReleaseNoteHTML(commitLogApps, commitLogLibs, buildNo=argsParsed.buildNumber)
+	generateReleaseNoteHTML(commitLogApps, commitLogLibs, buildNo=config['buildNumber'])
 	if config['emailEnabled'] == True:
-		releaseNoteEmail(emailPassword=argsParsed.emailPassword, fileAttachment="releaseNote.html")
+		releaseNoteEmail(config['emailPassword'], fileAttachment="releaseNote.html")
 
 
 if __name__ == '__main__':
 
 	argsParsed = releaseNoteArgsParse(releaseNoteArgs())
 	execPath = os.path.dirname(os.path.abspath(__file__))
-	loadConfiguration()
-
-	if (config['emailEnabled'] == True) & (argsParsed.emailPassword == None):
-		print "Configuration requires email address."
-		exit(-1)
+	loadConfiguration(argsParsed)
 
 	try:
 		main(argsParsed)
