@@ -6,8 +6,7 @@
 	"emailTo": "eepgmcw@yahoo.com, mark.c.welsh@gmail.com",
 	"emailFrom": "mark.c.welsh@gmail.com",
 
-	"defaultStartTag": "v[0-9]*",
-	"defaultEndTag": "HEAD",
+	"tagRegEx": "v[0-9]*.*",
 
 	"gitRepoPathApps": ".",
 	"gitRepoPathLibs": ".",
