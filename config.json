@@ -11,10 +11,11 @@
 	"gitRepoPathApps": ".",
 	"gitRepoPathLibs": ".",
 
+	"gitRepos": [
+					{"repoName": "ReactApp", "repoFileSystemPath": "."},
+					{"repoName": "Retail", "repoFileSystemPath": "../retail"}
+	],
 	"releaseTag": "DEP",
 	"deploymentEnv": "PIE1234",
 	"contactPoint": "Bob, Stuart or Dave - definitely not Gru"
-
-
-	
 }

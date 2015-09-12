@@ -145,10 +145,10 @@ def getCommitLog(path="."):
 
 def getGitPath(path='.'):
 	pathOut, pathErr = executeExternalCommand('git config --get remote.origin.url', path=path)
-	return pathOut
+	return pathOut.rstrip("\n")
 
 
-def generateReleaseNoteHTML(commitLogApps, commitLogLibs, buildNo):
+def generateReleaseNoteHTML(repoData, buildNo):
 	renderer = pystache.Renderer()
 	summary = 'This is the release note for build ' + str(buildNo) + '.'
 	furtherInfo = 'For more information contact ' + config['contactPoint'] + '.'
@@ -156,10 +156,7 @@ def generateReleaseNoteHTML(commitLogApps, commitLogLibs, buildNo):
 	renderer.search_dirs.append(execPath)
 	releaseNoteHTML = renderer.render_path(os.path.join(execPath, 'releaseNoteLayout.mustache'), {
 						'summary': summary, 
-						'commitsApps': commitLogApps, 
-						'commitsLibs': commitLogLibs, 
-						'repoPathApps': getGitPath(config['gitRepoPathApps']), 
-						'repoPathLibs': getGitPath(config['gitRepoPathLibs']), 
+						'repos': repoData, 
 						'furtherInfo': furtherInfo})
 
 	releaseNoteFile = open("releaseNote.html", 'w')
@@ -169,10 +166,13 @@ def generateReleaseNoteHTML(commitLogApps, commitLogLibs, buildNo):
 
 def main(args):
 
-	commitLogApps = getCommitLog(path=config['gitRepoPathApps'])
-	commitLogLibs = getCommitLog(path=config['gitRepoPathLibs'])
+	repoData = config['gitRepos']
 
-	generateReleaseNoteHTML(commitLogApps, commitLogLibs, buildNo=config['buildNumber'])
+	for x in range(0, len(repoData)):
+		repoData[x]['repoChangeList'] = getCommitLog(path=repoData[x]['repoFileSystemPath'])
+		repoData[x]['repoPath'] = getGitPath(repoData[x]['repoFileSystemPath']) 
+
+	generateReleaseNoteHTML(repoData=repoData, buildNo=config['buildNumber'])
 	if config['emailEnabled'] == True:
 		releaseNoteEmail(config['emailPassword'], fileAttachment="releaseNote.html")
 
