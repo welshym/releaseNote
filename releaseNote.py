@@ -125,8 +125,9 @@ def getCommitLog(path="."):
 
 	logCmd = ['git', 'log', earlier + later, '--pretty=format:{\"author\":\"%cn\",\"message\":\"%s\",\"timestamp\":\"%ci\",\"hash\":\"%H\"}']
 	logOut, tagErr = executeExternalCommand(logCmd, path=path, shell=False)
-	if logOut == "":
-		raise ReleaseNoteError("No git log data available.")
+
+	if (logOut == "") & (config['verbose'] == True):
+		print "No changes in this deployment."
 
 	commitJsonString = "["
 	firstElement = True

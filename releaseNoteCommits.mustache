@@ -1,16 +1,16 @@
 <section>
-    <table border="1">
-	<tr>
-		<th>Commit</th>
-		<th>Author</th>
-		<th>Date</th>
-	</tr>
-		{{#commits}}
-			<tr>
-				<td>{{message}}</td>
-				<td>{{author}}</td>
-				<td>{{timestamp}}</td>
-			</tr>
-    	{{/commits}}
-	</table>
+	{{#commits}}
+    	<table border="1">
+		<tr>
+			<th>Commit</th>
+			<th>Author</th>
+			<th>Date</th>
+		</tr>
+		<tr>
+			<td>{{message}}</td>
+			<td>{{author}}</td>
+			<td>{{timestamp}}</td>
+		</tr>
+		</table>
+    {{/commits}}
 </section>
