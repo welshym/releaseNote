@@ -11,6 +11,10 @@
 	"gitRepoPathApps": ".",
 	"gitRepoPathLibs": ".",
 
+	"releaseTag": "DEP",
+	"deploymentEnv": "PIE1234",
 	"contactPoint": "Bob, Stuart or Dave - definitely not Gru"
+
+
 	
 }
