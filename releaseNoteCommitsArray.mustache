@@ -1,0 +1,20 @@
+<section>
+	{{#repos}}
+		<h2>Git commit log for {{repoName}}</h2>
+		<p></b><a href={{repoPath}}>{{repoPath}}</a></p>
+    		<table border="1">
+				<tr>
+					<th>Commit</th>
+					<th>Author</th>
+					<th>Date</th>
+				</tr>
+				<tr>
+				{{#repoChangeList}}
+					<td>{{message}}</td>
+						<td>{{author}}</td>
+						<td>{{timestamp}}</td>
+					</tr>
+		    	{{/repoChangeList}}	
+			</table>
+    {{/repos}}
+</section>
