@@ -106,7 +106,7 @@ def getCommitLog(path="."):
 
 #	tagOut, tagErr = executeExternalCommand('git describe --tags --match ' + config['startTag'] + ' --abbrev=0', path=path)
 
-	tagListOut, tagListErr = executeExternalCommand('git tag', path=path)
+	tagListOut, tagListErr = executeExternalCommand('git tag -a', path=path)
 	if tagListOut == "":
 		raise ReleaseNoteError("No tags matching criteria found, exiting.")
 
@@ -118,6 +118,9 @@ def getCommitLog(path="."):
 	except:
 		earlier = ""
 
+	if config['verbose'] == True:
+		print "Earlier Tag: ", earlier
+		print "Later Tag: ", later
 
 	logCmd = ['git', 'log', earlier + later, '--pretty=format:{\"author\":\"%cn\",\"message\":\"%s\",\"timestamp\":\"%ci\",\"hash\":\"%H\"}']
 	logOut, tagErr = executeExternalCommand(logCmd, path=path, shell=False)
@@ -174,8 +177,8 @@ def main(args):
 
 if __name__ == '__main__':
 
-	argsParsed = releaseNoteArgsParse(releaseNoteArgs())
 	execPath = os.path.dirname(os.path.abspath(__file__))
+	argsParsed = releaseNoteArgsParse(releaseNoteArgs())
 	loadConfiguration(argsParsed)
 
 	try:
