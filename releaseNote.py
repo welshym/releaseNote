@@ -93,11 +93,12 @@ def executeExternalCommand(cmd, path, shell=True):
 
 def findMatchedTags(tagList, tagRegEx):
 	matchedTags = []
-	p = re.compile("(" + tagRegEx + ")")
+
+	p = re.compile("refs/tags/(" + tagRegEx + ")")
 	for tag in tagList:
 		match = p.match(tag)
 		if match:
-			matchedTags.append(match.group())
+			matchedTags.append(match.group(1))
 
 	return matchedTags
 
@@ -106,7 +107,7 @@ def getCommitLog(path="."):
 
 #	tagOut, tagErr = executeExternalCommand('git describe --tags --match ' + config['startTag'] + ' --abbrev=0', path=path)
 
-	tagListOut, tagListErr = executeExternalCommand('git tag -a', path=path)
+	tagListOut, tagListErr = executeExternalCommand('git for-each-ref --sort=taggerdate --format "%(refname)"', path=path)
 	if tagListOut == "":
 		raise ReleaseNoteError("No tags matching criteria found, exiting.")
 

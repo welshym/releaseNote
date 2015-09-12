@@ -6,7 +6,7 @@
 	"emailTo": "eepgmcw@yahoo.com, mark.c.welsh@gmail.com",
 	"emailFrom": "mark.c.welsh@gmail.com",
 
-	"tagRegEx": "v[0-9]*.*",
+	"tagRegEx": "DEP.*",
 
 	"gitRepoPathApps": ".",
 	"gitRepoPathLibs": ".",
