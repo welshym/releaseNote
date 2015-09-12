@@ -13,7 +13,7 @@
 
 	"gitRepos": [
 					{"repoName": "ReactApp", "repoFileSystemPath": "."},
-					{"repoName": "Retail", "repoFileSystemPath": "../retail"}
+					{"repoName": "Retail", "repoFileSystemPath": "."}
 	],
 	"releaseTag": "DEP",
 	"deploymentEnv": "PIE1234",
