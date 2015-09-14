@@ -31,7 +31,7 @@ def loadConfiguration(argsParsed):
 	config['emailPassword'] = argsParsed.emailPassword 
 	config['verbose'] = argsParsed.verbose 
 	if argsParsed.deploymentEnv != None:
-		config['deploymentEnv'] = argsParsed.deploymentEnv 
+		config['deploymentEnv'] = argsParsed.environment 
 	config['buildNumber'] = argsParsed.buildNumber
 
 
@@ -39,7 +39,7 @@ def releaseNoteArgs():
     parser = argparse.ArgumentParser(description='Python API release note script.')
     parser.add_argument('-v', '--verbose', action="store_true", default=False, dest="verbose")
     parser.add_argument('-b', '--build', action="store", dest="buildNumber")
-    parser.add_argument('-d', '--dep', action="store", dest="deploymentEnv")
+    parser.add_argument('-e', '--env', action="store", dest="environment")
     parser.add_argument('-p', '--password', action="store", dest="emailPassword")
     
     return parser
@@ -110,7 +110,7 @@ def getCommitLog(path="."):
 
 	if len(tagsMatch) == 0:
 		return ""
-		
+
 	later = tagsMatch.pop()
 	try:
 		earlier = tagsMatch.pop() + "..."
