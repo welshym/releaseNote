@@ -30,7 +30,9 @@ def loadConfiguration(argsParsed):
 
 
 def taggingArgs():
-    parser = argparse.ArgumentParser(description='Python API release note script.')
+    parser = argparse.ArgumentParser(description='Python API tagging script. Tags the current repo using an annotated string based on the config.json \"<releaseTag>_<environment>_<timestamp>. \
+    												Command line parameter -e <environment> overrides the config environment definition. \
+    												Can also delete a tag using the -d <tag> parameter.')
     parser.add_argument('-v', '--verbose', action="store_true", default=False, dest="verbose")
     parser.add_argument('-t', '--tag', action="store", dest="tag")
     parser.add_argument('-e', '--env', action="store", dest="environment")

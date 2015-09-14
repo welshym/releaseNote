@@ -36,7 +36,9 @@ def loadConfiguration(argsParsed):
 
 
 def releaseNoteArgs():
-    parser = argparse.ArgumentParser(description='Python API release note script.')
+    parser = argparse.ArgumentParser(description='Python API release note script. Determines the change list for the repo the script is executed from between two tags (if no earlier tag its the start of time). \
+    												Based on \"DEP_<environment>\" where the environment is defined in the config.json or passed on the command line. \
+    												The build number can also be passed in for reference.')
     parser.add_argument('-v', '--verbose', action="store_true", default=False, dest="verbose")
     parser.add_argument('-b', '--build', action="store", dest="buildNumber")
     parser.add_argument('-e', '--env', action="store", dest="environment")
@@ -106,7 +108,7 @@ def getCommitLog(path="."):
 	if tagListOut == "":
 		raise ReleaseNoteError("No tags matching criteria found, exiting.")
 
-	tagsMatch = findMatchedTags(tagList=tagListOut.splitlines(), tagRegEx=".*" + config['deploymentEnv'] + ".*")
+	tagsMatch = findMatchedTags(tagList=tagListOut.splitlines(), tagRegEx=config['releaseTag'] + "_" + config['deploymentEnv'] + ".*")
 
 	if len(tagsMatch) == 0:
 		return ""
