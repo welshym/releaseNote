@@ -30,10 +30,8 @@ def loadConfiguration(argsParsed):
 
 	config['emailPassword'] = argsParsed.emailPassword 
 	config['verbose'] = argsParsed.verbose 
-	if argsParsed.startTag != None:
-		config['startTag'] = argsParsed.startTag 
-	if argsParsed.endTag != None:
-		config['endTag'] = argsParsed.startTag 
+	if argsParsed.deploymentEnv != None:
+		config['deploymentEnv'] = argsParsed.deploymentEnv 
 	config['buildNumber'] = argsParsed.buildNumber
 
 
@@ -41,8 +39,7 @@ def releaseNoteArgs():
     parser = argparse.ArgumentParser(description='Python API release note script.')
     parser.add_argument('-v', '--verbose', action="store_true", default=False, dest="verbose")
     parser.add_argument('-b', '--build', action="store", dest="buildNumber")
-    parser.add_argument('-s', '--start', action="store", dest="startTag")
-    parser.add_argument('-e', '--end', action="store", dest="endTag")
+    parser.add_argument('-d', '--dep', action="store", dest="deploymentEnv")
     parser.add_argument('-p', '--password', action="store", dest="emailPassword")
     
     return parser
@@ -105,14 +102,15 @@ def findMatchedTags(tagList, tagRegEx):
 
 def getCommitLog(path="."):
 
-#	tagOut, tagErr = executeExternalCommand('git describe --tags --match ' + config['startTag'] + ' --abbrev=0', path=path)
-
 	tagListOut, tagListErr = executeExternalCommand('git for-each-ref --sort=taggerdate --format "%(refname)"', path=path)
 	if tagListOut == "":
 		raise ReleaseNoteError("No tags matching criteria found, exiting.")
 
-	tagsMatch = findMatchedTags(tagList=tagListOut.splitlines(), tagRegEx=config['tagRegEx'])
+	tagsMatch = findMatchedTags(tagList=tagListOut.splitlines(), tagRegEx=".*" + config['deploymentEnv'] + ".*")
 
+	if len(tagsMatch) == 0:
+		return ""
+		
 	later = tagsMatch.pop()
 	try:
 		earlier = tagsMatch.pop() + "..."
