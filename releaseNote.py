@@ -30,7 +30,7 @@ def loadConfiguration(argsParsed):
 
 	config['emailPassword'] = argsParsed.emailPassword 
 	config['verbose'] = argsParsed.verbose 
-	if argsParsed.deploymentEnv != None:
+	if argsParsed.environment != None:
 		config['deploymentEnv'] = argsParsed.environment 
 	config['buildNumber'] = argsParsed.buildNumber
 
