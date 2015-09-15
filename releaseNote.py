@@ -154,12 +154,12 @@ def generateReleaseNoteHTML(repoData, buildNo):
 	furtherInfo = 'For more information contact ' + config['contactPoint'] + '.'
 
 	renderer.search_dirs.append(execPath)
-	releaseNoteHTML = renderer.render_path(os.path.join(execPath, 'releaseNoteLayout.mustache'), {
+	releaseNoteHTML = renderer.render_path(os.path.join(execPath, 'releasenotelayout.mustache'), {
 						'summary': summary, 
 						'repos': repoData, 
 						'furtherInfo': furtherInfo})
 
-	releaseNoteFile = open("releaseNote.html", 'w')
+	releaseNoteFile = open("releasenote.html", 'w')
 	releaseNoteFile.write(releaseNoteHTML)
 	releaseNoteFile.close()
 
