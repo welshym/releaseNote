@@ -52,7 +52,7 @@ def executeExternalCommand(cmd, path, shell=True):
 		stdOut, stdErr = p.communicate()
 	except:
 		raise TaggingError("Failed git command: " + cmd)
-	return stdOut, stdErr
+	return stdOut.decode('utf-8'), stdErr.decode('utf-8')
 	
 
 
