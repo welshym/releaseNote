@@ -25,7 +25,7 @@ def loadConfiguration(argsParsed):
 		config['deploymentEnv'] = argsParsed.environment
 
 	if (argsParsed.delete == True) & (argsParsed.tag == None):
-		print "Cannot delete tag without tag definition"
+		print ("Cannot delete tag without tag definition")
 		raise TaggingError("Missing git tag to delete")
 
 
@@ -45,14 +45,15 @@ def taggingArgsParse(parser):
     
 def executeExternalCommand(cmd, path, shell=True):
 	if config['verbose'] == True:
-		print "Executing: ", cmd
+		print ("Executing: ", cmd)
 
 	try:
 		p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, shell=shell, cwd=path)
-		commandOutput = p.communicate()
+		stdOut, stdErr = p.communicate()
 	except:
 		raise TaggingError("Failed git command: " + cmd)
-	return commandOutput
+	return stdOut, stdErr
+	
 
 
 def tagRelease(tag, path="."):
@@ -77,7 +78,6 @@ def createTag():
 	return tag
 
 def main(args):
-
 	if config['tag'] == None:
 		tag = createTag()
 	else:
@@ -87,7 +87,6 @@ def main(args):
 	tagRelease(tag, path=config['gitRepoPathLibs'])
 
 if __name__ == '__main__':
-
 	execPath = os.path.dirname(os.path.abspath(__file__))
 	argsParsed = taggingArgsParse(taggingArgs())
 	loadConfiguration(argsParsed)
@@ -95,12 +94,12 @@ if __name__ == '__main__':
 	try:
 		main(argsParsed)
 	except KeyboardInterrupt:
-		print "OK, OK, exiting"
+		print ("OK, OK, exiting")
 	except TaggingError as problem:
-		print "Tagging problem: {0}".format(problem)
+		print ("Tagging problem: {0}".format(problem))
 	except SystemExit:
-		print "Finished slightly oddly."
+		print ("Finished slightly oddly.")
 	except:
-		print "EXCEPTION: What the hell did you do?"
+		print ("EXCEPTION: What the hell did you do?")
 		if argsParsed.verbose == True:
 			traceback.print_exc()

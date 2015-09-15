@@ -25,7 +25,7 @@ def loadConfiguration(argsParsed):
 		config = json.load(data_file)
 
 	if (config['emailEnabled'] == True) & (argsParsed.emailPassword == None):
-		print "Configuration requires email address."
+		print ("Configuration requires email address.")
 		exit(-1)
 
 	config['emailPassword'] = argsParsed.emailPassword 
@@ -79,16 +79,16 @@ def releaseNoteEmail (fileAttachment=None, message=None):
 	session.quit()
     
 def executeExternalCommand(cmd, path, shell=True):
-
-	if config['verbose']:
-		print "Executing: ", cmd
+	if config['verbose'] == True:
+		print ("Executing: ", cmd)
 
 	try:
 		p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, shell=shell, cwd=path)
-		commandOutput = p.communicate()
+		stdOut, stdErr = p.communicate()
 	except:
-		raise ReleaseNoteError("Failed git command: " + cmd)
-	return commandOutput
+		raise TaggingError("Failed git command: " + cmd)
+	return stdOut, stdErr
+
 
 def findMatchedTags(tagList, tagRegEx):
 	matchedTags = []
@@ -120,14 +120,14 @@ def getCommitLog(path="."):
 		earlier = ""
 
 	if config['verbose'] == True:
-		print "Earlier Tag: ", earlier
-		print "Later Tag: ", later
+		print ("Earlier Tag: ", earlier)
+		print ("Later Tag: ", later)
 
 	logCmd = ['git', 'log', earlier + later, '--pretty=format:{\"author\":\"%cn\",\"message\":\"%s\",\"timestamp\":\"%ci\",\"hash\":\"%H\"}']
 	logOut, tagErr = executeExternalCommand(logCmd, path=path, shell=False)
 
 	if (logOut == "") & (config['verbose'] == True):
-		print "No changes in this deployment."
+		print ("No changes in this deployment.")
 
 	commitJsonString = "["
 	firstElement = True
@@ -178,7 +178,6 @@ def main(args):
 
 
 if __name__ == '__main__':
-
 	execPath = os.path.dirname(os.path.abspath(__file__))
 	argsParsed = releaseNoteArgsParse(releaseNoteArgs())
 	loadConfiguration(argsParsed)
@@ -186,13 +185,13 @@ if __name__ == '__main__':
 	try:
 		main(argsParsed)
 	except KeyboardInterrupt:
-		print "OK, OK, exiting"
+		print ("OK, OK, exiting")
 	except ReleaseNoteError as problem:
-		print "Release note problem: {0}".format(problem)
+		print ("Release note problem: {0}".format(problem))
 	except SystemExit:
-		print "Finished slightly oddly."
+		print ("Finished slightly oddly.")
 	except:
-		print "EXCEPTION: What the hell did you do?"
+		print ("EXCEPTION: What the hell did you do?")
 		if argsParsed.verbose == True:
 			traceback.print_exc()
 
