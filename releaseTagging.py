@@ -58,13 +58,11 @@ def executeExternalCommand(cmd, path, shell=True):
 
 def tagRelease(tag, path="."):
 
-	createTagMessage = " -m 'Deployment Tag'"
-	deleteTagStr = ""
 	if config['delete'] == True:
-		deleteTagStr = "-d "
-		createTagMessage = ""
+		tagOut, tagErr = executeExternalCommand('git tag -d ' + tag, path=path)
+	else:
+		tagOut, tagErr = executeExternalCommand('git tag -a ' + tag + ' -m "Deployment Tag"', path=path)
 
-	tagOut, tagErr = executeExternalCommand('git tag -a ' + deleteTagStr + tag + createTagMessage, path=path)
 	if tagErr != "":
 		raise TaggingError("Could not tag release, exiting. " + tagErr)
 
