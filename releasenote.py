@@ -1,6 +1,5 @@
 # Release note creation in python
 import argparse
-import json
 import pystache
 import traceback
 import sys, os, re
@@ -9,48 +8,6 @@ import gitmodule
 
 def loadLocalConfiguration(argsParsed):
 	globalconfig.config['buildNumber'] = argsParsed.buildNumber
-
-def getCommitLog(path="."):
-
-	tagListOut, tagListErr = gitmodule.executeExternalCommand(cmd='git for-each-ref --sort=taggerdate --format "%(refname)"', path=path)
-	if tagListOut == "":
-		raise ExecutionError("No tags matching criteria found, exiting.")
-
-	tagsMatch = gitmodule.findMatchedTags(tagList=tagListOut.splitlines(), tagRegEx=globalconfig.config['releaseTag'] + "_" + globalconfig.config['deploymentEnv'] + ".*")
-
-	if len(tagsMatch) == 0:
-		return ""
-
-	later = tagsMatch.pop()
-	try:
-		earlier = tagsMatch.pop() + "..."
-	except:
-		earlier = ""
-
-	if globalconfig.config['verbose'] == True:
-		print ("Earlier Tag: ", earlier)
-		print ("Later Tag: ", later)
-
-	logCmd = ['git', 'log', earlier + later, '--pretty=format:{\"author\":\"%cn\",\"message\":\"%s\",\"timestamp\":\"%ci\",\"hash\":\"%H\"}']
-	logOut, tagErr = gitmodule.executeExternalCommand(logCmd, path=path, shell=False)
-
-	if (logOut == "") & (globalconfig.config['verbose'] == True):
-		print ("No changes in this deployment.")
-
-	commitJsonString = "["
-	firstElement = True
-	for line in logOut.splitlines():
-		if firstElement == True:
-			firstElement = False
-		else:
-			commitJsonString += ","
-		commitJsonString = commitJsonString + line
-	commitJsonString += "]"
-
-	commitLog = json.loads(commitJsonString)
-
-	return commitLog
-
 
 
 def generateReleaseNoteHTML(repoData, buildNo):
@@ -79,7 +36,7 @@ def main(args):
 		repoData[x]['repoLatestStageTag'] = gitmodule.getLatestStageTag(path=repoData[x]['repoFileSystemPath'])
 		gitmodule.checkoutStage(stageTag=repoData[x]['repoLatestStageTag'], path=repoData[x]['repoFileSystemPath'])
 		gitmodule.tagRelease(deploymentTag, path=repoData[x]['repoFileSystemPath'])
-		repoData[x]['repoChangeList'] = getCommitLog(path=repoData[x]['repoFileSystemPath'])
+		repoData[x]['repoChangeList'] = gitmodule.getCommitLog(tagRegEx=globalconfig.config['releaseTag'] + "_" + globalconfig.config['deploymentEnv'] + ".*", path=repoData[x]['repoFileSystemPath'])
 		repoData[x]['repoPath'] = gitmodule.getGitPath(repoData[x]['repoFileSystemPath']) 
 
 	generateReleaseNoteHTML(repoData=repoData, buildNo=globalconfig.config['buildNumber'])
