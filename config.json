@@ -8,14 +8,13 @@
 
 	"tagRegEx": "DEP.*",
 
-	"gitRepoPathApps": ".",
-	"gitRepoPathLibs": ".",
-
 	"gitRepos": [
-					{"repoName": "ReactApp", "repoFileSystemPath": "."},
-					{"repoName": "Retail", "repoFileSystemPath": "."}
+					{"repoName": "ReactApp", "repoFileSystemPath": "."}
 	],
-	"releaseTag": "DEP",
+
+	"stageTag": "NEXUS_DEPLOY",
+	"releaseTag": "ENV_DEPLOY",
+	
 	"deploymentEnv": "PIE1234",
 	"contactPoint": "Bob, Stuart or Dave - definitely not Gru"
 }
