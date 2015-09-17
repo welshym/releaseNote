@@ -13,12 +13,10 @@ class ExecutionError(Exception):
 
 
 def createTag():
-
-	tag = globalconfig.config['releaseTag'] + "_" + globalconfig.config['deploymentEnv'] + "_" + time.strftime("%d-%m-%Y-%H%M%S", time.gmtime())
-
-	if globalconfig.config.has_key('staging'):
-		if globalconfig.config['staging']:
-			tag = globalconfig.config['stageTag'] + "_" + time.strftime("%d-%m-%Y-%H%M%S", time.gmtime())
+	if globalconfig.config.has_key('staging') and globalconfig.config['staging']:
+		tag = globalconfig.config['stageTag'] + "_" + time.strftime("%d-%m-%Y-%H%M%S", time.gmtime())
+	else:
+		tag = globalconfig.config['releaseTag'] + "_" + globalconfig.config['deploymentEnv'] + "_" + time.strftime("%d-%m-%Y-%H%M%S", time.gmtime())
 
 	return tag
 
