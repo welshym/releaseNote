@@ -1,4 +1,4 @@
-# Release note creation in python
+# Script to create release notes
 import argparse
 import pystache
 import traceback

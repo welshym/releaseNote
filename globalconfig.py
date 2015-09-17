@@ -1,3 +1,4 @@
+# Global configuration file
 import json
 import argparse
 import os

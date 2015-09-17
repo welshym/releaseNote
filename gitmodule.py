@@ -1,3 +1,4 @@
+# Git library functionality to support release notes
 import globalconfig
 import time
 import subprocess

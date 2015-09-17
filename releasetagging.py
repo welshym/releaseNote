@@ -1,4 +1,4 @@
-# Release note creation in python
+# Script to tag git repos
 import argparse
 import subprocess
 import traceback
