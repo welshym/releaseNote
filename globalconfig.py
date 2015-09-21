@@ -11,7 +11,13 @@ def init():
 	execPath = os.path.dirname(os.path.abspath(__file__))
 
 def loadGlobalConfiguration(argsParsed):
-	with open(os.path.join(execPath, 'config.json')) as data_file:    
+
+	if argsParsed.configFile != None:
+		configFile = argsParsed.configFile
+	else:
+		configFile = os.path.join(execPath, 'config.json')
+
+	with open(configFile) as data_file:    
 		global config
 		config = json.load(data_file)
 
@@ -23,6 +29,7 @@ def getArgParser():
     parser = argparse.ArgumentParser(description='Python API release note script.')
     parser.add_argument('-v', '--verbose', action="store_true", default=False, dest="verbose")
     parser.add_argument('-e', '--env', action="store", dest="environment")
+    parser.add_argument('-c', '--config', action="store", dest="configFile")
     
     return parser
 
