@@ -13,7 +13,7 @@ class ExecutionError(Exception):
 
 
 def createTag():
-	if globalconfig.config.has_key('staging') and globalconfig.config['staging']:
+	if 'staging' in globalconfig.config and globalconfig.config['staging']:
 		tag = globalconfig.config['stageTag'] + "_" + time.strftime("%d-%m-%Y-%H%M%S", time.gmtime())
 	else:
 		tag = globalconfig.config['releaseTag'] + "_" + globalconfig.config['deploymentEnv'] + "_" + time.strftime("%d-%m-%Y-%H%M%S", time.gmtime())
@@ -24,24 +24,24 @@ def tagRelease(tag, path="."):
 
 	createTagMessage = " -m 'Deployment Tag'"
 
-	if ((globalconfig.config.has_key('delete') == True) and (globalconfig.config['delete'] == True)):
+	if (('delete' in globalconfig.config) and (globalconfig.config['delete'] == True)):
 		tagOut, tagErr = executeExternalCommand('git tag -d ' + tag, path=path)
 		deleteRefs = ":refs/tags/"
 	else:
-		tagOut, tagErr = executeExternalCommand('git tag -a ' + tag + ' -m "Deployment Tag"', path=path)
+		tagOut, tagErr = executeExternalCommand('git tag ' + tag, path=path)
 		deleteRefs = ""
 
-	if tagErr != "":
-		raise ExecutionError("Could not tag release, exiting. " + tagErr)
+	if ((tagErr.decode() != "") and ("RSA host key for IP address" not in tagErr.decode())):
+		raise ExecutionError("Could not tag release, exiting. Error: " + tagErr.decode())
 
 	tagPushOut, tagPushErr = executeExternalCommand('git push origin ' + deleteRefs + tag, path=path)
-	if tagPushOut != "":
-		raise ExecutionError("Couldn't push tag, exiting.")
+	if ((tagPushErr.decode() != "") and ("RSA host key for IP address" not in tagPushErr.decode())):
+		raise ExecutionError("Couldn't push tag, exiting. Error: " + tagPushErr.decode())
 
 
 def executeExternalCommand(cmd, path=".", shell=True):
 	if globalconfig.config['verbose'] == True:
-		print "Executing: ", cmd
+		print ("Executing: ", cmd)
 
 	try:
 		p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, shell=shell, cwd=path)
@@ -53,17 +53,15 @@ def executeExternalCommand(cmd, path=".", shell=True):
 
 def checkoutStage(stageTag, path="."):
 	tagOut, tagErr = executeExternalCommand('git checkout ' + stageTag , path=path)
-	if tagErr.startswith("error:") == True:
+	if tagErr.decode().startswith("error:") == True:
 		raise ExecutionError("Couldn't checkout tag release, exiting. " + tagErr)
 
 def getLatestStageTag(path="."):
 	tagListOut, tagListErr = executeExternalCommand(cmd='git for-each-ref --sort=taggerdate --format "%(refname)"', path=path)
-	if tagListOut == "":
+	if tagListOut.decode() == "":
 		raise ExecutionError("No tags matching criteria found, exiting.")
 
-	tagsMatch = findMatchedTags(tagList=tagListOut.splitlines(), tagRegEx=globalconfig.config['stageTag'] + ".*")
-
-	print tagsMatch
+	tagsMatch = findMatchedTags(tagList=tagListOut.decode().splitlines(), tagRegEx=globalconfig.config['stageTag'] + ".*")
 
 	if len(tagsMatch) == 0:
 		return ""
@@ -85,16 +83,16 @@ def findMatchedTags(tagList, tagRegEx):
 
 def getGitPath(path='.'):
 	pathOut, pathErr = executeExternalCommand('git config --get remote.origin.url', path=path)
-	return pathOut.rstrip("\n")
+	return pathOut.decode().rstrip("\n")
 
 
 def getCommitLog(tagRegEx, path="."):
 
 	tagListOut, tagListErr = executeExternalCommand(cmd='git for-each-ref --sort=taggerdate --format "%(refname)"', path=path)
-	if tagListOut == "":
+	if tagListOut.decode() == "":
 		raise ExecutionError("No tags matching criteria found, exiting.")
 
-	tagsMatch = findMatchedTags(tagList=tagListOut.splitlines(), tagRegEx=tagRegEx)
+	tagsMatch = findMatchedTags(tagList=tagListOut.decode().splitlines(), tagRegEx=tagRegEx)
 
 	if len(tagsMatch) == 0:
 		return ""
@@ -112,18 +110,21 @@ def getCommitLog(tagRegEx, path="."):
 	logCmd = ['git', 'log', earlier + later, '--pretty=format:{\"author\":\"%cn\",\"message\":\"%s\",\"timestamp\":\"%ci\",\"hash\":\"%H\"}']
 	logOut, tagErr = executeExternalCommand(logCmd, path=path, shell=False)
 
-	if (logOut == "") & (globalconfig.config['verbose'] == True):
+	if (logOut.decode() == "") & (globalconfig.config['verbose'] == True):
 		print ("No changes in this deployment.")
 
 	commitJsonString = "["
 	firstElement = True
-	for line in logOut.splitlines():
+	for line in logOut.decode().splitlines():
 		if firstElement == True:
 			firstElement = False
 		else:
 			commitJsonString += ","
 		commitJsonString = commitJsonString + line
 	commitJsonString += "]"
+
+	print ("************************************")
+	print (commitJsonString)
 
 	commitLog = json.loads(commitJsonString)
 

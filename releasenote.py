@@ -1,10 +1,17 @@
 # Script to create release notes
+import sys, os, re
+
+path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if not path in sys.path:
+    sys.path.insert(1, path)
+del path
+
 import argparse
 import pystache
 import traceback
-import sys, os, re
 import globalconfig
 import gitmodule
+
 
 def loadLocalConfiguration(argsParsed):
 	globalconfig.config['buildNumber'] = argsParsed.buildNumber
@@ -17,8 +24,8 @@ def generateReleaseNoteHTML(repoData, buildNo):
 
 	renderer.search_dirs.append(globalconfig.execPath)
 	releaseNoteHTML = renderer.render_path(os.path.join(globalconfig.execPath, 'releaseNoteLayout.mustache'), {
-						'summary': summary, 
-						'repos': repoData, 
+						'summary': summary,
+						'repos': repoData,
 						'furtherInfo': furtherInfo})
 
 	releaseNoteFile = open("releaseNote.html", 'w')
@@ -37,7 +44,7 @@ def main(args):
 		gitmodule.checkoutStage(stageTag=repoData[x]['repoLatestStageTag'], path=repoData[x]['repoFileSystemPath'])
 		gitmodule.tagRelease(deploymentTag, path=repoData[x]['repoFileSystemPath'])
 		repoData[x]['repoChangeList'] = gitmodule.getCommitLog(tagRegEx=globalconfig.config['releaseTag'] + "_" + globalconfig.config['deploymentEnv'] + ".*", path=repoData[x]['repoFileSystemPath'])
-		repoData[x]['repoPath'] = gitmodule.getGitPath(repoData[x]['repoFileSystemPath']) 
+		repoData[x]['repoPath'] = gitmodule.getGitPath(repoData[x]['repoFileSystemPath'])
 
 	generateReleaseNoteHTML(repoData=repoData, buildNo=globalconfig.config['buildNumber'])
 	if globalconfig.config['emailEnabled'] == True:
