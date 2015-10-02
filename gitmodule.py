@@ -113,18 +113,23 @@ def getCommitLog(tagRegEx, path="."):
 	if (logOut.decode() == "") & (globalconfig.config['verbose'] == True):
 		print ("No changes in this deployment.")
 
+	pattern = re.compile(r'(.*"message": ")(.*)(","timestamp":.*)')
+
 	commitJsonString = "["
 	firstElement = True
 	for line in logOut.decode().splitlines():
+
+		match = pattern.match(line)
+		changedStr = match.group(2).replace('"', '')
+
+		line = match.group(1) + changedStr + match.group(3)
+
 		if firstElement == True:
 			firstElement = False
 		else:
 			commitJsonString += ","
 		commitJsonString = commitJsonString + line
 	commitJsonString += "]"
-
-	print ("************************************")
-	print (commitJsonString)
 
 	commitLog = json.loads(commitJsonString)
 

@@ -9,7 +9,7 @@
 	"tagRegEx": "DEP.*",
 
 	"gitRepos": [
-		{"repoName": "ReactApp", "repoFileSystemPath": "."},
+		{"repoName": "ReactApp", "repoFileSystemPath": "."}
 		{"repoName": "ReactLib", "repoFileSystemPath": "react-lib"}
 	],
 
