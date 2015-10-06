@@ -1,21 +1,16 @@
 {
 	"emailEnabled": false,
-	"SMTP_SERVER": "smtp.gmail.com",
-	"SMTP_PORT": 587,
-
-	"emailTo": "eepgmcw@yahoo.com, mark.c.welsh@gmail.com",
-	"emailFrom": "mark.c.welsh@gmail.com",
-
-	"tagRegEx": "DEP.*",
+	"tagRegEx": "DEPLOY.*",
 
 	"gitRepos": [
-		{"repoName": "ReactApp", "repoFileSystemPath": "."}
-		{"repoName": "ReactLib", "repoFileSystemPath": "react-lib"}
+		{"repoName": "React Applications", "repoFileSystemPath": "."},
+		{"repoName": "React Library", "repoFileSystemPath": "react-lib"},
+		{"repoName": "JavaCode", "repoFileSystemPath": "../mortgages-web"}
 	],
 
 	"stageTag": "NEXUS_DEPLOY",
 	"releaseTag": "ENV_DEPLOY",
 
 	"deploymentEnv": "PIE1234",
-	"contactPoint": "Bob, Stuart or Dave - definitely not Gru!"
+	"contactPoint": "Phil Ince or Ouma Mauree"
 }

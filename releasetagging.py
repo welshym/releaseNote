@@ -1,10 +1,5 @@
 # Script to tag git repos
 import sys, os, re, time
-path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-if not path in sys.path:
-    sys.path.insert(1, path)
-del path
-
 import argparse
 import subprocess
 import traceback
@@ -27,11 +22,11 @@ def main(args):
     else:
         tag = globalconfig.config['tag']
 
-    repoData = globalconfig.config['gitRepos']
+    for x in range(0, len(globalconfig.config['gitRepos'])):
+        if os.path.exists(globalconfig.config['gitRepos'][x]['repoFileSystemPath']) == False:
+            continue
+        gitmodule.tagRelease(tag, path=globalconfig.config['gitRepos'][x]['repoFileSystemPath'])
 
-    for x in range(0, len(repoData)):
-        print ("repoData: ", repoData[x]['repoFileSystemPath'])
-        gitmodule.tagRelease(tag, path=repoData[x]['repoFileSystemPath'])
 
 if __name__ == '__main__':
     globalconfig.init()

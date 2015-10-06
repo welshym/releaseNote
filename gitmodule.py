@@ -1,6 +1,5 @@
 # Git library functionality to support release notes
 import globalconfig
-import time
 import subprocess
 import re
 import json
@@ -14,9 +13,9 @@ class ExecutionError(Exception):
 
 def createTag():
 	if 'staging' in globalconfig.config and globalconfig.config['staging']:
-		tag = globalconfig.config['stageTag'] + "_" + time.strftime("%d-%m-%Y-%H%M%S", time.gmtime())
+		tag = globalconfig.config['stageTag'] + "_" + globalconfig.executionTime
 	else:
-		tag = globalconfig.config['releaseTag'] + "_" + globalconfig.config['deploymentEnv'] + "_" + time.strftime("%d-%m-%Y-%H%M%S", time.gmtime())
+		tag = globalconfig.config['releaseTag'] + "_" + globalconfig.config['deploymentEnv'] + "_" + globalconfig.executionTime
 
 	return tag
 
@@ -35,8 +34,6 @@ def tagRelease(tag, path="."):
 		raise ExecutionError("Could not tag release, exiting. Error: " + tagErr.decode())
 
 	tagPushOut, tagPushErr = executeExternalCommand('git push origin ' + deleteRefs + tag, path=path)
-	if ((tagPushErr.decode() != "") and ("RSA host key for IP address" not in tagPushErr.decode())):
-		raise ExecutionError("Couldn't push tag, exiting. Error: " + tagPushErr.decode())
 
 
 def executeExternalCommand(cmd, path=".", shell=True):
@@ -113,16 +110,15 @@ def getCommitLog(tagRegEx, path="."):
 	if (logOut.decode() == "") & (globalconfig.config['verbose'] == True):
 		print ("No changes in this deployment.")
 
-	pattern = re.compile(r'(.*"message": ")(.*)(","timestamp":.*)')
+	pattern = re.compile(r'(.*"message":")(.*)(","timestamp":.*)')
 
 	commitJsonString = "["
 	firstElement = True
 	for line in logOut.decode().splitlines():
-
 		match = pattern.match(line)
-		changedStr = match.group(2).replace('"', '')
-
-		line = match.group(1) + changedStr + match.group(3)
+		if match:
+			changedStr = match.group(2).replace('"', '')
+			line = match.group(1) + changedStr + match.group(3)
 
 		if firstElement == True:
 			firstElement = False

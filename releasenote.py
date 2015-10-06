@@ -1,11 +1,5 @@
 # Script to create release notes
 import sys, os, re
-
-path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-if not path in sys.path:
-    sys.path.insert(1, path)
-del path
-
 import argparse
 import pystache
 import traceback
@@ -28,23 +22,28 @@ def generateReleaseNoteHTML(repoData, buildNo):
 						'repos': repoData,
 						'furtherInfo': furtherInfo})
 
-	releaseNoteFile = open("releaseNote.html", 'w')
+	releaseNoteFile = open("releasenote-"+ globalconfig.config['deploymentEnv'] + "-" + globalconfig.executionTime + ".html", 'w')
 	releaseNoteFile.write(releaseNoteHTML)
 	releaseNoteFile.close()
 
 
 def main(args):
 
-	repoData = globalconfig.config['gitRepos']
 
 	deploymentTag = gitmodule.createTag()
 
-	for x in range(0, len(repoData)):
-		repoData[x]['repoLatestStageTag'] = gitmodule.getLatestStageTag(path=repoData[x]['repoFileSystemPath'])
-		gitmodule.checkoutStage(stageTag=repoData[x]['repoLatestStageTag'], path=repoData[x]['repoFileSystemPath'])
-		gitmodule.tagRelease(deploymentTag, path=repoData[x]['repoFileSystemPath'])
-		repoData[x]['repoChangeList'] = gitmodule.getCommitLog(tagRegEx=globalconfig.config['releaseTag'] + "_" + globalconfig.config['deploymentEnv'] + ".*", path=repoData[x]['repoFileSystemPath'])
-		repoData[x]['repoPath'] = gitmodule.getGitPath(repoData[x]['repoFileSystemPath'])
+	repoData = []
+
+	for x in range(0, len(globalconfig.config['gitRepos'])):
+		if os.path.exists(globalconfig.config['gitRepos'][x]['repoFileSystemPath']) == False:
+			continue
+		
+		globalconfig.config['gitRepos'][x]['repoLatestStageTag'] = gitmodule.getLatestStageTag(path=globalconfig.config['gitRepos'][x]['repoFileSystemPath'])
+		gitmodule.checkoutStage(stageTag=globalconfig.config['gitRepos'][x]['repoLatestStageTag'], path=globalconfig.config['gitRepos'][x]['repoFileSystemPath'])
+		gitmodule.tagRelease(deploymentTag, path=globalconfig.config['gitRepos'][x]['repoFileSystemPath'])
+		globalconfig.config['gitRepos'][x]['repoChangeList'] = gitmodule.getCommitLog(tagRegEx=globalconfig.config['releaseTag'] + "_" + globalconfig.config['deploymentEnv'] + ".*", path=globalconfig.config['gitRepos'][x]['repoFileSystemPath'])
+		globalconfig.config['gitRepos'][x]['repoPath'] = gitmodule.getGitPath(globalconfig.config['gitRepos'][x]['repoFileSystemPath'])
+		repoData.append(globalconfig.config['gitRepos'][x])
 
 	generateReleaseNoteHTML(repoData=repoData, buildNo=globalconfig.config['buildNumber'])
 	if globalconfig.config['emailEnabled'] == True:

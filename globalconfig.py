@@ -2,9 +2,12 @@
 import json
 import argparse
 import os
+import time
+
 
 config = {}
 execPath = ""
+executionTime = time.strftime("%d%m%Y-%H%M%S", time.gmtime())
 
 def init():
 	global execPath
@@ -24,6 +27,8 @@ def loadGlobalConfiguration(argsParsed):
 	config['verbose'] = argsParsed.verbose
 	if argsParsed.environment != None:
 		config['deploymentEnv'] = argsParsed.environment
+	else:
+		config['deploymentEnv'] = "NOENV"
 
 def getArgParser():
     parser = argparse.ArgumentParser(description='Python API release note script.')
